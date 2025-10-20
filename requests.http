@@ -1,0 +1,18 @@
+### App requests.http
+
+### Create a new user
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+"username": "johndoe",
+"email": "johndoe@example.com",
+"password": "securePassword123",
+"isActive": true,
+"role": "user"
+}
+
+### Retrieve all users
+GET http://localhost:3000/users
+
+

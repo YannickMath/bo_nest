@@ -1,0 +1,31 @@
+import {
+  IsBoolean,
+  IsEmail,
+  IsIn,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
+
+export class CreateUserDto {
+  @IsString()
+  username: string;
+
+  @IsString()
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d).+$/, {
+    message: 'password must contain at least one letter and one number',
+  })
+  password: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['admin', 'user', 'guest'])
+  role?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+}
