@@ -1,4 +1,3 @@
-// src/config/validation.ts
 import * as Joi from 'joi';
 
 export const dbValidationSchema = Joi.object({
