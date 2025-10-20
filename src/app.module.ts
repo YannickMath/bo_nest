@@ -4,8 +4,8 @@ import { AppService } from './app.service';
 import { UsersModule } from './Users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import dbConfig from './dbConfig';
-import { dbValidationSchema } from './dbValidation';
+import { dbValidationSchema } from './validation/dbValidation';
+import dbConfig from './config/dbConfig';
 @Module({
   imports: [
     ConfigModule.forRoot({
