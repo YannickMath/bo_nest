@@ -22,4 +22,8 @@ export class AuthService {
       access_token: await this.jwtService.signAsync(payload),
     };
   }
+
+  loginTrace(username: string): void {
+    console.log(`User logged in: ${username}`);
+  }
 }

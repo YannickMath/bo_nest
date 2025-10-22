@@ -29,6 +29,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('profile')
   getProfile(@Request() req: RequestWithUser) {
+    console.log('on passe dans getProfile avec user :', req.user);
     return req.user;
   }
 }
