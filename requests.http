@@ -5,11 +5,9 @@ POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-"username": "johndoe",
-"email": "johndoe@example.com",
-"password": "securePassword123",
-"isActive": true,
-"role": "user"
+"username": "mmmgkjgkgh122",
+"email": "mmm@example.com",
+"password": "securePassword1112211"
 }
 
 ### Retrieve all users

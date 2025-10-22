@@ -7,9 +7,8 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    console.log(createUserDto);
-    return createUserDto;
+  create(@Body() dto: CreateUserDto) {
+    return this.usersService.create(dto);
   }
 
   @Get('user/:id')
@@ -19,22 +18,21 @@ export class UsersController {
   }
 
   @Get('announce')
-  announceUserCreation() {
-    const sampleUser = {
-      id: 1,
-      username: 'john_doe',
-      email: 'john@example.com',
-      password: 'securepassword',
-      role: 'user',
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.usersService.announceUserCreation(sampleUser);
-    console.log(`User created: ${sampleUser.username}`);
-    return 'User creation announced';
-  }
-
+  // announceUserCreation() {
+  //   const sampleUser = {
+  //     id: 1,
+  //     username: 'john_doe',
+  //     email: 'john@example.com',
+  //     password: 'securepassword',
+  //     role: 'user',
+  //     isActive: true,
+  //     createdAt: new Date(),
+  //     updatedAt: new Date(),
+  //   };
+  //   this.usersService.announceUserCreation(sampleUser);
+  //   console.log(`User created: ${sampleUser.username}`);
+  //   return 'User creation announced';
+  // }
   @Get()
   findAll() {
     return 'This action returns all users';
