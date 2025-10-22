@@ -13,4 +13,6 @@ Content-Type: application/json
 ### Retrieve all users
 GET http://localhost:3000/users
 
-
+### Get a user by profile
+GET http://localhost:3000/auth/profile
+Authorization: Bearer <token>

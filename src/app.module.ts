@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dbValidationSchema } from './validation/dbValidation';
 import dbConfig from './config/dbConfig';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -15,6 +16,7 @@ import dbConfig from './config/dbConfig';
       envFilePath: ['.env'], // fichier(s) .env à charger
     }),
     UsersModule,
+    AuthModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -35,7 +37,6 @@ import dbConfig from './config/dbConfig';
         };
       },
     }),
-    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

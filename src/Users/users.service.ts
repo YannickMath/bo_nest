@@ -31,4 +31,11 @@ export class UsersService {
   announceUserCreation(user: UserEntity): void {
     console.log(`User created: ${user.username}`);
   }
+  async findOne(username: string): Promise<UserEntity> {
+    const user = await this.usersRepository.findOne({ where: { username } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
+  }
 }
