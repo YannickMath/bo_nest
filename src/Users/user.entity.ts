@@ -14,6 +14,7 @@ export class UserEntity {
   @Column() password: string;
   @Column({ default: 'user' }) role: string;
   @Column({ default: false }) isActive: boolean;
+  @Column({ default: false }) emailVerified: boolean;
   @CreateDateColumn({ type: 'timestamptz' }) createdAt: Date;
   @UpdateDateColumn({ type: 'timestamptz' }) updatedAt: Date;
 }
