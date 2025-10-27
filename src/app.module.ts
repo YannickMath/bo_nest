@@ -7,6 +7,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dbValidationSchema } from './validation/dbValidation';
 import dbConfig from './config/dbConfig';
 import { AuthModule } from './auth/auth.module';
+import { CsrfModule } from './cookies/csrf.module';
+import { CsrfController } from './cookies/csrf.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -17,6 +19,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     UsersModule,
     AuthModule,
+    CsrfModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -38,7 +41,7 @@ import { AuthModule } from './auth/auth.module';
       },
     }),
   ],
-  controllers: [AppController],
+  controllers: [AppController, CsrfController],
   providers: [AppService],
 })
 export class AppModule {}

@@ -7,12 +7,15 @@ import {
   UseGuards,
   Get,
   Request,
+  Query,
+  NotFoundException,
 } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/Users/DTO/input/create-user.dto';
 import { AuthGuard } from './auth.guard';
 import { EmailService } from 'src/email/email.service';
+import { UsersService } from 'src/Users/users.service';
 
 interface RequestWithUser extends ExpressRequest {
   user?: { [key: string]: unknown };
@@ -22,6 +25,7 @@ interface RequestWithUser extends ExpressRequest {
 export class AuthController {
   constructor(
     private authService: AuthService,
+    private usersService: UsersService,
     private emailService: EmailService,
   ) {}
 
@@ -37,13 +41,23 @@ export class AuthController {
     console.log('on passe dans getProfile avec user :', req.user);
     return req.user;
   }
+  @Get('verify')
+  @HttpCode(200)
+  async verify(@Query('token') token: string) {
+    const payload = this.authService.verifyEmailToken(token);
+    const user = await this.usersService.findOneById(payload.sub); // <-- bascule à true (idempotent)
 
-  @Get('test-email')
-  async sendTest() {
-    await this.emailService.sendVerifyEmail(
-      'test@example.com',
-      'http://localhost:3000/auth/verify?token=dummy',
-    );
-    return 'Mail envoyé (check Mailtrap)';
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.usersService.updateEmailVerified(user.id, true);
+
+    return {
+      message: 'Email vérifié. Tu peux te connecter.',
+      user: { id: user.id, email: user.email, emailVerified: true },
+      // tokens: { accessToken, refreshToken },
+      //save email
+    };
   }
 }

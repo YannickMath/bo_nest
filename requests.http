@@ -1,14 +1,29 @@
 ### App requests.http
 
+### Obtenir le token csrf
+# @name getCsrf
+GET http://localhost:3000/csrf/csrfToken
+
 ### Create a new user
 POST http://localhost:3000/users
 Content-Type: application/json
+X-CSRF-Token: {{getCsrf.response.body.$.csrfToken}}
 
 {
-"username": "mmmgkjgkgh122",
-"email": "mmm@example.com",
-"password": "securePassword1112211"
+"username":"mmdddddsjgkgh122",
+"email": "mmddddqddm@exffdsdsample.com",
+"password": "secdfdsqurePassword1112211"
 }
+
+### User login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+X-CSRF-Token: {{getCsrf.response.body.$.csrfToken}}
+
+{"username": "mmdddsjgkgh122", 
+"password": "secdfdsqurePassword1112211", 
+"email": "mmdddqdm@exffdsdsample.com"}
+
 ### Verify user signup email confirmation
 POST http://localhost:3000/auth/verify?token=<token>
 
@@ -26,3 +41,7 @@ GET http://localhost:3000/users/email-availability?email=mmm@example.com
 
 ### Test mailtrap email sending
 GET http://localhost:3000/auth/test-email
+
+
+
+

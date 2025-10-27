@@ -1,69 +1,63 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import nodemailer, { Transporter } from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { UserEntity } from 'src/Users/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class EmailService {
-  private transporter: nodemailer.Transporter;
-  private from: string;
-  private usersRepository: Repository<UserEntity>;
+  private transporter!: Transporter<SMTPTransport.SentMessageInfo>;
+  private readonly from: string;
   private readonly logger = new Logger(EmailService.name);
+  private readonly usersRepository: Repository<UserEntity>;
 
   constructor(private readonly cfg: ConfigService) {
+    const host =
+      this.cfg.get<string>('SMTP_HOST') ?? 'sandbox.smtp.mailtrap.io';
+    const port = Number(this.cfg.get('SMTP_PORT') ?? '2525');
+    const user = this.cfg.get<string>('SMTP_USER');
+    const pass = this.cfg.get<string>('SMTP_PASS');
+    if (!user || !pass) throw new Error('SMTP_USER/SMTP_PASS manquants');
+
+    this.from = this.cfg.get('EMAIL_FROM') ?? 'no-reply@example.com';
     this.transporter = nodemailer.createTransport({
-      host: this.cfg.get('SMTP_HOST') ?? 'sandbox.smtp.mailtrap.io',
-      port: parseInt(this.cfg.get('SMTP_PORT') ?? '2525', 10),
-      auth: {
-        user: this.cfg.get('SMTP_USER')!,
-        pass: this.cfg.get('SMTP_PASS')!,
-      },
+      host,
+      port,
+      secure: false,
+      auth: { user, pass },
     });
-    console.log('this.transporter:', this.transporter);
     this.logger.log('📮 Transport: Mailtrap (Sandbox)');
   }
 
   async sendVerifyEmail(to: string, verifyUrl: string) {
     const html = `
       <h2>Bienvenue 👋</h2>
-      <p>Pour activer ton compte, clique sur le lien :</p>
+      <p>Clique pour activer ton compte :</p>
       <p><a href="${verifyUrl}" target="_blank" rel="noreferrer">Vérifier mon email</a></p>
       <p>Le lien expire dans ${this.cfg.get('JWT_EMAIL_EXPIRES') ?? '30m'}.</p>
-      <hr/>
-      <small>Si tu n'es pas à l'origine de cette demande, ignore ce message.</small>
     `;
-
     try {
-      const info = await this.transporter.sendMail({
+      await this.transporter.sendMail({
         from: this.from,
         to,
         subject: 'Vérifie ton adresse email',
         html,
       });
-
       this.logger.log(`✅ Mail envoyé à ${to}`);
-      return { success: true };
-    } catch (err: any) {
-      this.logger.error(`❌ Erreur d’envoi à ${to}: ${err.message}`);
-      return { success: false, error: err?.message || 'Unknown error' };
+      return { success: true as const };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      this.logger.error(`❌ Erreur d’envoi à ${to}: ${msg}`);
+      return { success: false as const, error: msg };
     }
   }
 
-  async verifyEmail(
-    userId: number,
-  ): Promise<{ user: UserEntity; wasFirstTime: boolean }> {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('Utilisateur introuvable');
-
-    if (user.emailVerified) {
-      // déjà vérifié → idempotent
-      return { user, wasFirstTime: false };
-    }
-
-    // première vérification
-    user.emailVerified = true;
-    await this.usersRepository.save(user);
-    return { user, wasFirstTime: true };
-  }
+  // async verifyEmail(userId: number): Promise<UserEntity> {
+  //   const user = await this.usersRepository.findOne({ where: { id: userId } });
+  //   if (!user) throw new NotFoundException('Utilisateur introuvable');
+  //   if (user.emailVerified) return user; // idempotent
+  //   user.emailVerified = true;
+  //   return this.usersRepository.save(user);
+  // }
 }

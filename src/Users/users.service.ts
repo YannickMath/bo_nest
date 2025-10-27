@@ -2,9 +2,9 @@ import { CreateUserDto } from './DTO/input/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
-import { NotFoundException } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { EmailService } from 'src/email/email.service';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UsersService {
@@ -12,6 +12,7 @@ export class UsersService {
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
     private emailService: EmailService,
+    private authService: AuthService,
   ) {}
 
   async create(dto: CreateUserDto): Promise<UserEntity> {
@@ -19,19 +20,18 @@ export class UsersService {
       username: dto.username,
       email: dto.email,
       password: dto.password,
-      //  password: await bcrypt.hash(dto.password, 10),
     });
-    try {
-      await this.usersRepository.save(user);
-      this.announceUserCreation(user);
-      // build a verify URL (or token) locally since UserEntity doesn't expose verifyUrl
-      const verifyUrl = `https://example.com/verify?userId=${user.id}`;
-      await this.emailService.sendVerifyEmail(user.email, verifyUrl);
-    } catch (error: unknown) {
-      console.error('Error saving user:', error);
-      if (error instanceof Error) throw error;
-      throw new Error(String(error));
-    }
+    await this.usersRepository.save(user);
+
+    // Génère un token de vérif et un lien vers le backend
+    const token = this.authService.signEmailToken({
+      id: user.id,
+      email: user.email,
+    });
+    const apiBase = process.env.APP_BASE_URL;
+    const verifyUrl = `${apiBase}/auth/verify?token=${encodeURIComponent(token)}`;
+
+    await this.emailService.sendVerifyEmail(user.email, verifyUrl);
     return user;
   }
 
@@ -49,12 +49,17 @@ export class UsersService {
   findByEmail(email: string): Promise<UserEntity | null> {
     return this.usersRepository.findOne({ where: { email } });
   }
+  findOneById(id: number): Promise<UserEntity | null> {
+    return this.usersRepository.findOne({ where: { id } });
+  }
 
-  async verifyEmail(userId: number): Promise<UserEntity> {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('Utilisateur introuvable');
-    if (user.emailVerified) return user; // idempotent
-    user.emailVerified = true;
-    return this.usersRepository.save(user);
+  sayHello(): string {
+    return 'Hello from UsersService!';
+  }
+
+  updateEmailVerified(userId: number, verified: boolean): Promise<void> {
+    return this.usersRepository
+      .update({ id: userId }, { emailVerified: verified })
+      .then(() => {});
   }
 }
