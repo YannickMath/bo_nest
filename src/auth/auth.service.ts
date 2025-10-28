@@ -17,11 +17,8 @@ export class AuthService {
     private cfg: ConfigService,
   ) {}
 
-  async signIn(
-    username: string,
-    pass: string,
-  ): Promise<{ access_token: string }> {
-    const user = await this.usersService.findOne(username);
+  async signIn(mail: string, pass: string): Promise<{ access_token: string }> {
+    const user = await this.usersService.findOneByEmail(mail);
     if (user?.password !== pass) {
       throw new UnauthorizedException();
     }

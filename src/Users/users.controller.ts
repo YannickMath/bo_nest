@@ -1,7 +1,6 @@
 import { CreateUserDto } from './DTO/input/create-user.dto';
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { number } from 'joi';
 
 @Controller('users')
 export class UsersController {
