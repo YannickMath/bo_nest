@@ -10,9 +10,9 @@ Content-Type: application/json
 X-CSRF-Token: {{getCsrf.response.body.$.csrfToken}}
 
 {
-"username":"mmdddddsjgkgh122",
-"email": "mmddddqddm@exffdsdsample.com",
-"password": "secdfdsqurePassword1112211"
+"username":"mmh1pp22",
+"email": "mmhaappm@exffd.com",
+"password": "Password1112211"
 }
 
 ### User login
@@ -20,9 +20,11 @@ POST http://localhost:3000/auth/login
 Content-Type: application/json
 X-CSRF-Token: {{getCsrf.response.body.$.csrfToken}}
 
-{"username": "mmdddsjgkgh122", 
-"password": "secdfdsqurePassword1112211", 
-"email": "mmdddqdm@exffdsdsample.com"}
+{
+"username":"mmh122",
+"email": "mmhaam@exffd.com",
+"password": "Password1112211"
+}
 
 ### Verify user signup email confirmation
 POST http://localhost:3000/auth/verify?token=<token>

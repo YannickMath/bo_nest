@@ -1,7 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UserEntity } from 'src/Users/user.entity';
-import { Repository } from 'typeorm';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { Transporter } from 'nodemailer';
 import nodemailer from 'nodemailer';
@@ -11,7 +9,6 @@ export class EmailService {
   private transporter!: Transporter<SMTPTransport.SentMessageInfo>;
   private readonly from: string;
   private readonly logger = new Logger(EmailService.name);
-  private readonly usersRepository: Repository<UserEntity>;
   constructor(private readonly cfg: ConfigService) {
     const host = this.cfg.get<string>('SMTP_HOST');
     const port = Number(this.cfg.get('SMTP_PORT') ?? '2525');

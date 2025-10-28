@@ -5,6 +5,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UserEntity } from 'src/Users/user.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/Users/users.service';
 
@@ -13,6 +16,8 @@ export class AuthService {
   constructor(
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
+    @InjectRepository(UserEntity)
+    private usersRepository: Repository<UserEntity>,
     private jwtService: JwtService,
     private cfg: ConfigService,
   ) {}
@@ -28,6 +33,9 @@ export class AuthService {
       );
     }
     const payload = { sub: user.id, username: user.username };
+    // toggle active flag on the user and persist the change
+    user.isActive = !user.isActive;
+    await this.usersRepository.save(user);
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
