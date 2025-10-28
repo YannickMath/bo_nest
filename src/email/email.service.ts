@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import nodemailer, { Transporter } from 'nodemailer';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { UserEntity } from 'src/Users/user.entity';
 import { Repository } from 'typeorm';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { Transporter } from 'nodemailer';
+import nodemailer from 'nodemailer';
 
 @Injectable()
 export class EmailService {
@@ -12,8 +13,7 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly usersRepository: Repository<UserEntity>;
   constructor(private readonly cfg: ConfigService) {
-    const host =
-      this.cfg.get<string>('SMTP_HOST') ?? 'sandbox.smtp.mailtrap.io';
+    const host = this.cfg.get<string>('SMTP_HOST');
     const port = Number(this.cfg.get('SMTP_PORT') ?? '2525');
     const user = this.cfg.get<string>('SMTP_USER');
     const pass = this.cfg.get<string>('SMTP_PASS');

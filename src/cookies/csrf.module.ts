@@ -1,5 +1,5 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
-import { Request, Response } from 'express';
+import type { Request } from 'express';
 import cookieParser from 'cookie-parser';
 import { doubleCsrf } from 'csrf-csrf';
 
@@ -10,6 +10,7 @@ export const { doubleCsrfProtection, generateCsrfToken } = doubleCsrf({
   // optionnel; enlève si tu n'utilises pas de session
   getSessionIdentifier: (req: Request) =>
     (req.ip as string) || (req.headers['x-forwarded-for'] as string) || '',
+  // options pour le cookie CSRF
   cookieName: 'XSRF-TOKEN',
   cookieOptions: {
     sameSite: 'lax',
@@ -21,7 +22,7 @@ export const { doubleCsrfProtection, generateCsrfToken } = doubleCsrf({
 
   getCsrfTokenFromRequest: (req: Request & { body?: { _csrf?: string } }) =>
     (req.headers['x-csrf-token'] as string) ||
-    ((req.body && req.body._csrf) as string) ||
+    ((req.body as { _csrf?: string } | undefined)?._csrf as string) ||
     '',
 });
 
