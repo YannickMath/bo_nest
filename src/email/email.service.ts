@@ -11,7 +11,6 @@ export class EmailService {
   private readonly from: string;
   private readonly logger = new Logger(EmailService.name);
   private readonly usersRepository: Repository<UserEntity>;
-
   constructor(private readonly cfg: ConfigService) {
     const host =
       this.cfg.get<string>('SMTP_HOST') ?? 'sandbox.smtp.mailtrap.io';
@@ -52,12 +51,4 @@ export class EmailService {
       return { success: false as const, error: msg };
     }
   }
-
-  // async verifyEmail(userId: number): Promise<UserEntity> {
-  //   const user = await this.usersRepository.findOne({ where: { id: userId } });
-  //   if (!user) throw new NotFoundException('Utilisateur introuvable');
-  //   if (user.emailVerified) return user; // idempotent
-  //   user.emailVerified = true;
-  //   return this.usersRepository.save(user);
-  // }
 }

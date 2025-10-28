@@ -35,26 +35,12 @@ export class UsersService {
     return user;
   }
 
-  announceUserCreation(user: UserEntity): void {
-    console.log(`User created: ${user.username}`);
-  }
-  async findOne(username: string): Promise<UserEntity> {
-    const user = await this.usersRepository.findOne({ where: { username } });
-    if (!user) {
-      throw new Error('User not found');
-    }
-    return user;
-  }
-
-  findByEmail(email: string): Promise<UserEntity | null> {
+  findOneByEmail(email: string): Promise<UserEntity | null> {
     return this.usersRepository.findOne({ where: { email } });
   }
+
   findOneById(id: number): Promise<UserEntity | null> {
     return this.usersRepository.findOne({ where: { id } });
-  }
-
-  sayHello(): string {
-    return 'Hello from UsersService!';
   }
 
   updateEmailVerified(userId: number, verified: boolean): Promise<void> {
