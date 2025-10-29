@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmailService } from 'src/email/email.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { CsrfController } from 'src/cookies/csrf.controller';
-import { CsrfService } from 'src/cookies/csrf.service';
 
 @Module({
   imports: [
@@ -14,7 +13,7 @@ import { CsrfService } from 'src/cookies/csrf.service';
     forwardRef(() => AuthModule),
   ],
   controllers: [UsersController, CsrfController],
-  providers: [UsersService, EmailService, CsrfService],
+  providers: [UsersService, EmailService],
   exports: [UsersService],
 })
 export class UsersModule {}

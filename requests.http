@@ -10,9 +10,9 @@ Content-Type: application/json
 X-CSRF-Token: {{getCsrf.response.body.$.csrfToken}}
 
 {
-"username":"rrrrrrrrrrr",
-"email": "rrrrrrrrrrr@exffd.com",
-"password": "rrrrrrrrrrrfdfsdfds22"
+"username":"yayafsddd",
+"email": "rrrooddoqfdoorrrr@exffdddd.com",
+"password": "sfdooddddorfdfsdfds22"
 }
 
 ### User login
@@ -20,13 +20,16 @@ POST http://localhost:3000/auth/login
 Content-Type: application/json
 
 {
-"email": "rrrrrrrrrrr@exffd.com",
-"password": "rrrrrrrrrrrfdfsdfds22"
+"email": "rrrooddoqfdoorrrr@exffdddd.com",
+"password": "sfdooddddorfdfsdfds22"
 }
+
+### test protected route with new csrf token
+POST http://localhost:3000/users/announceNewCsrfToken
+X-CSRF-Token: {{getCsrf.response.body.$.csrfToken}}
 
 ### Verify user signup email confirmation
 POST http://localhost:3000/auth/verify?token=<token>
-
 
 ### Retrieve all users
 GET http://localhost:3000/users

@@ -11,6 +11,11 @@ export class UsersController {
     return this.usersService.create(dto);
   }
 
+  @Post('announceNewCsrfToken')
+  announceNewCsrfToken() {
+    return 'This action announces a new CSRF token';
+  }
+
   @Get('user/:id')
   findOne(@Param('id') id: string) {
     console.log(id);

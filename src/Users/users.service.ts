@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './DTO/input/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,8 +20,9 @@ export class UsersService {
     const user = this.usersRepository.create({
       username: dto.username,
       email: dto.email,
-      password: dto.password,
+      password: bcrypt.hashSync(dto.password, 10),
     });
+
     await this.usersRepository.save(user);
 
     // Génère un token de vérif et un lien vers le backend

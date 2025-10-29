@@ -9,12 +9,16 @@ import {
   Request,
   Query,
   NotFoundException,
+  Req,
+  Res,
 } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 import { UsersService } from 'src/Users/users.service';
 import { LoginUserDto } from 'src/Users/DTO/input/login-user.dto';
+import { generateCsrfToken } from 'src/cookies/csrf.module';
+import type { Response } from 'express';
 
 interface RequestWithUser extends ExpressRequest {
   user?: { [key: string]: unknown };
@@ -29,8 +33,19 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInDto: LoginUserDto) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+  signIn(
+    @Body() signInDto: LoginUserDto,
+    @Req() req: ExpressRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const newCsrfToken = generateCsrfToken(req, res);
+    // return this.authService.signIn(signInDto.email, signInDto.password);
+    return this.authService
+      .signIn(signInDto.email, signInDto.password)
+      .then((tokenObj) => ({
+        ...tokenObj,
+        csrfToken: newCsrfToken,
+      }));
   }
 
   @UseGuards(AuthGuard)

@@ -1,24 +1,23 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import type { Request } from 'express';
 import cookieParser from 'cookie-parser';
 import { doubleCsrf } from 'csrf-csrf';
-import type { Request } from 'express';
-import { CsrfService } from './csrf.service';
-import { CsrfController } from './csrf.controller';
+
+// const isProd = process.env.NODE_ENV === 'production';
 
 export const { doubleCsrfProtection, generateCsrfToken } = doubleCsrf({
   getSecret: () => process.env.CSRF_SECRET || 'dev-secret',
-
-  // On essaie dans l'ordre : header custom, cookie session, puis ip comme fallback.
-  getSessionIdentifier: (req: Request & { cookies?: { sessionId?: string } }) =>
-    (req.headers['x-session-id'] as string) ||
-    (req.cookies?.sessionId as string) ||
-    req.ip ||
-    '',
-
+  getSessionIdentifier: (req: Request) =>
+    (req.ip as string) || (req.headers['x-forwarded-for'] as string) || '',
+  // options pour le cookie CSRF
   cookieName: 'XSRF-TOKEN',
-  cookieOptions: { sameSite: 'lax', secure: false, httpOnly: false, path: '/' },
+  cookieOptions: {
+    sameSite: 'lax',
+    secure: false, // true en prod (HTTPS)
+    httpOnly: false, // lisible par le front (double-submit cookie)
+    path: '/',
+  },
   ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
-
   skipCsrfProtection: (req) => req.originalUrl.includes('/auth/login'),
 
   getCsrfTokenFromRequest: (req: Request & { body?: { _csrf?: string } }) =>
@@ -27,15 +26,12 @@ export const { doubleCsrfProtection, generateCsrfToken } = doubleCsrf({
     '',
 });
 
-@Module({
-  providers: [CsrfService],
-  controllers: [CsrfController],
-  exports: [CsrfService],
-})
+@Module({})
 export class CsrfModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(cookieParser()).forRoutes('*');
-
-    consumer.apply(doubleCsrfProtection).forRoutes('*');
+    consumer
+      // l’ordre compte: cookieParser d’abord
+      .apply(cookieParser(), doubleCsrfProtection)
+      .forRoutes('*');
   }
 }
