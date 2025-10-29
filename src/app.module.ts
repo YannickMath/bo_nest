@@ -8,7 +8,6 @@ import { dbValidationSchema } from './validation/dbValidation';
 import dbConfig from './config/dbConfig';
 import { AuthModule } from './auth/auth.module';
 import { CsrfModule } from './cookies/csrf.module';
-import { CsrfController } from './cookies/csrf.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,7 +40,7 @@ import { CsrfController } from './cookies/csrf.controller';
       },
     }),
   ],
-  controllers: [AppController, CsrfController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

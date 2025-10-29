@@ -35,6 +35,7 @@ export class AuthService {
     const payload = { sub: user.id, username: user.username };
     // toggle active flag on the user and persist the change
     user.isActive = !user.isActive;
+    //refresh csrf token and before delete old one
     await this.usersRepository.save(user);
     return {
       access_token: await this.jwtService.signAsync(payload),

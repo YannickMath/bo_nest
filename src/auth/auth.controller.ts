@@ -12,10 +12,9 @@ import {
 } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/Users/DTO/input/create-user.dto';
 import { AuthGuard } from './auth.guard';
-import { EmailService } from 'src/email/email.service';
 import { UsersService } from 'src/Users/users.service';
+import { LoginUserDto } from 'src/Users/DTO/input/login-user.dto';
 
 interface RequestWithUser extends ExpressRequest {
   user?: { [key: string]: unknown };
@@ -26,13 +25,12 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
-    private emailService: EmailService,
   ) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInDto: CreateUserDto) {
-    return this.authService.signIn(signInDto.username, signInDto.password);
+  signIn(@Body() signInDto: LoginUserDto) {
+    return this.authService.signIn(signInDto.email, signInDto.password);
   }
 
   @UseGuards(AuthGuard)
