@@ -86,8 +86,6 @@ export class AuthController {
     return {
       message: 'Email vérifié. Tu peux te connecter.',
       user: { id: user.id, email: user.email, emailVerified: true },
-      // tokens: { accessToken, refreshToken },
-      //save email
     };
   }
 }
