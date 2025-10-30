@@ -36,7 +36,7 @@ GET http://localhost:3000/users
 
 ### Get a user by profile
 GET http://localhost:3000/auth/profile
-Authorization: Bearer <token>
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjU4LCJ1c2VybmFtZSI6InlheWFmc2RkZCIsImlhdCI6MTc2MTc4NDA2MywiZXhwIjoxNzYxNzg0MTIzfQ.qTL9tsWxxA43GoKUOoh0Goz-U8sfmcYLR_r2QCNDNjo.eyJzdWIiOjU4LCJ1c2VybmFtZSI6InlheWFmc2RkZCIsImlhdCI6MTc2MTc4MjE4NywiZXhwIjoxNzYxNzgyMjQ3fQ.4SrxsMWlo4lrq6o3RoFlAE9TGwMC0X4uucLTGgkYfVo
 
 ### Find email availability
 GET http://localhost:3000/users/email-availability?email=mmm@example.com

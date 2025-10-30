@@ -1,22 +1,25 @@
-import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import type { Request } from 'express';
-import cookieParser from 'cookie-parser';
 import { doubleCsrf } from 'csrf-csrf';
-
-// const isProd = process.env.NODE_ENV === 'production';
 
 export const { doubleCsrfProtection, generateCsrfToken } = doubleCsrf({
   getSecret: () => process.env.CSRF_SECRET || 'dev-secret',
-  getSessionIdentifier: (req: Request) =>
-    (req.ip as string) || (req.headers['x-forwarded-for'] as string) || '',
-  // options pour le cookie CSRF
+
+  getSessionIdentifier: (req: Request) => {
+    const cookies = (req.cookies ?? {}) as Record<string, unknown>;
+    const sessionId = cookies['CSRF_SESSION_ID'];
+    return typeof sessionId === 'string' ? sessionId : '';
+  },
+
+  // Cookie lisible par le front pour le double-submit
   cookieName: 'XSRF-TOKEN',
   cookieOptions: {
     sameSite: 'lax',
-    secure: false, // true en prod (HTTPS)
-    httpOnly: false, // lisible par le front (double-submit cookie)
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: false, // lisible par le front
     path: '/',
   },
+
   ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
   skipCsrfProtection: (req) => req.originalUrl.includes('/auth/login'),
 
@@ -27,11 +30,4 @@ export const { doubleCsrfProtection, generateCsrfToken } = doubleCsrf({
 });
 
 @Module({})
-export class CsrfModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      // l’ordre compte: cookieParser d’abord
-      .apply(cookieParser(), doubleCsrfProtection)
-      .forRoutes('*');
-  }
-}
+export class CsrfModule {}

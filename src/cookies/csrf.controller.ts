@@ -6,6 +6,7 @@ import { generateCsrfToken } from './csrf.module';
 export class CsrfController {
   @Get('csrfToken')
   getCsrfToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    res.setHeader('Cache-Control', 'no-store');
     const csrfToken = generateCsrfToken(req, res);
     return { csrfToken };
   }

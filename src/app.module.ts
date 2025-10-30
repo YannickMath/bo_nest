@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './Users/users.module';
@@ -7,7 +7,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dbValidationSchema } from './validation/dbValidation';
 import dbConfig from './config/dbConfig';
 import { AuthModule } from './auth/auth.module';
-import { CsrfModule } from './cookies/csrf.module';
+import { CsrfModule, doubleCsrfProtection } from './cookies/csrf.module';
+import cookieParser from 'cookie-parser';
+import { csrfSessionCookie } from './middlewares/csrf.middleware';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -43,4 +45,10 @@ import { CsrfModule } from './cookies/csrf.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(cookieParser(), csrfSessionCookie, doubleCsrfProtection)
+      .forRoutes('*');
+  }
+}

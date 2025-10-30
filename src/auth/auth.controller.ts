@@ -19,7 +19,9 @@ import { UsersService } from 'src/Users/users.service';
 import { LoginUserDto } from 'src/Users/DTO/input/login-user.dto';
 import { generateCsrfToken } from 'src/cookies/csrf.module';
 import type { Response } from 'express';
+import crypto from 'crypto';
 
+// à patcher plus tard
 interface RequestWithUser extends ExpressRequest {
   user?: { [key: string]: unknown };
 }
@@ -33,25 +35,40 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(
+  async signIn(
     @Body() signInDto: LoginUserDto,
     @Req() req: ExpressRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const newCsrfToken = generateCsrfToken(req, res);
-    // return this.authService.signIn(signInDto.email, signInDto.password);
-    return this.authService
-      .signIn(signInDto.email, signInDto.password)
-      .then((tokenObj) => ({
-        ...tokenObj,
-        csrfToken: newCsrfToken,
-      }));
+    const tokenObj = await this.authService.signIn(
+      signInDto.email,
+      signInDto.password,
+    );
+
+    // Rotate l'identifiant de session CSRF
+    const newId = crypto.randomBytes(32).toString('hex');
+
+    // Écrit le cookie côté **réponse** -> envoyé au navigateur
+    res.cookie('CSRF_SESSION_ID', newId, {
+      httpOnly: true, // Protège contre JS injection
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+    });
+
+    req.cookies = req.cookies || {};
+
+    // S'assure que le cookie XSRF-TOKEN existe (sinon generateCsrfToken peut échouer)
+    req.cookies['XSRF-TOKEN'] ??= '';
+
+    const csrfToken = generateCsrfToken(req, res);
+
+    return { ...tokenObj, csrfToken };
   }
 
   @UseGuards(AuthGuard)
   @Get('profile')
   getProfile(@Request() req: RequestWithUser) {
-    console.log('on passe dans getProfile avec user :', req.user);
     return req.user;
   }
   @Get('verify')

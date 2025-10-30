@@ -18,7 +18,6 @@ export class UsersController {
 
   @Get('user/:id')
   findOne(@Param('id') id: string) {
-    console.log(id);
     return `This action returns user #${id}`;
   }
 
